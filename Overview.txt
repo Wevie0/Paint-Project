@@ -1,0 +1,40 @@
+The Paint Project Plan
+# Pseudocode
+
+<setup> (resolution, colours, variables, loading all pictures)
+Use at least (1280 x 960)
+
+while running:
+	<event loop>
+
+	# Selecting the tool
+	if <click on pencil tool>:
+		tool = "pencil"
+	if <click on eraser tool>:
+		tool = "eraser"
+	<more if for ALL tools>
+	
+	# Draw shapes
+	# Fill tool
+	# Undo and Redo
+	# Display text
+	# Increase/Decrease thickness
+	# Dropper tool
+	# hide mouse cursor, custom image
+	
+	
+	# Use tool
+	if <click on canvas>:
+		if tool == "pencil":
+			draw.line(screen, colour, (oldmx, oldmy), (mx, my))
+		if tool == "eraser":
+			draw.circle(screen, white, (mx, my), size)
+
+	# Select colour
+	if <click on pallette>:
+		colour = screen.get_at((mx, my))
+	
+	display.flip()
+quit()
+
+
