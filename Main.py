@@ -44,7 +44,6 @@ draw.rect(screen, BLACK, (245, 45, 1110, 610), 10)
 draw.rect(screen, WHITE, canvas, 0)
 capture = screen.subsurface(canvas).copy()
 
-
 tool = 0
 colour = BLACK
 size = 5
@@ -64,6 +63,11 @@ Tool_8 = Rect(115, 305, 85, 85)
 Tool_9 = Rect(115, 390, 85, 85)
 
 while running:
+    screen.fill(RED)
+    draw.rect(screen, WHITE, canvas, 0)
+    draw.rect(screen, BLACK, (245, 45, 1110, 610), 10)
+    screen.blit(capture, (250, 50))
+
     for evt in event.get():
         if evt.type == QUIT:
             running = False
@@ -74,8 +78,10 @@ while running:
             if evt.button == 5 and size > 1:
                 size -= 1
         if evt.type == MOUSEBUTTONUP:
-            capture = screen.subsurface(canvas).copy()
             screen.blit(capture, (250, 50))
+            if tool == 1:
+                draw.line(screen, colour, (oldX, oldY), (mx, my), size)
+            capture = screen.subsurface(canvas).copy()
 
     mx, my = mouse.get_pos()
     mb = mouse.get_pressed(3)
@@ -91,6 +97,7 @@ while running:
 
     screen.blit(colour_wheel, (10, 485))
     screen.blit(black_white, (15, 685))
+    draw.rect(screen, colour, (10, 485, 30, 30))
 
     if mb[0] == 1 and my >= 485:
         if ((mx - 110) ** 2 + (my - 585) ** 2) ** 0.5 <= 90:
@@ -101,9 +108,10 @@ while running:
     if mb[0] == 1 and canvas.collidepoint(mx, my):
         if tool == 0:
             draw.circle(screen, colour, (mx, my), size)
+            capture = screen.subsurface(canvas).copy()
         elif tool == 1:
             screen.set_clip(canvas)
-            screen.blit(capture, (250, 50))
+            screen.blit(capture, canvas)
             draw.line(screen, colour, (mx, my), (oldX, oldY), size)
             screen.set_clip(None)
         elif tool == 2:
@@ -115,10 +123,10 @@ while running:
                                  int(mx + ((5 * size) ** 2 - abs(my - rand_y) ** 2) ** 0.5))
                 draw.circle(screen, colour, (rand_x, rand_y), 2)
         elif tool == 4:
-            draw.line(screen, colour, (mx, my), (pencilX, pencilY), 5)
+            draw.line(screen, colour, (mx, my), (oldX, oldY), 5)
 
     if tool == 5:
-        tool = 1
+        tool = -1
         file_name = filedialog.asksaveasfilename(defaultextension=".png",
                                                  filetypes=(("PNG", "*.png"), ("All Files", "*.*")))
         if len(file_name) > 0:
@@ -127,19 +135,30 @@ while running:
             else:
                 image.save(screen.subsurface(canvas), file_name + ".png")
         continue
-    if tool == 9:
+    elif tool == 6:
+        try:
+            file_name = filedialog.askopenfilename()
+            imported = image.load(file_name)
+            screen.blit(imported, (400, 300))
+            capture = screen.subsurface(canvas).copy()
+            screen.blit(capture, (250, 50))
+        except error:
+            pass
+        tool = -1
+        continue
+
+    elif tool == 9:
         draw.rect(screen, WHITE, canvas)
 
-    if mx < 250:
-        for i in range(10):
-            if eval("Tool_" + str(i)).collidepoint(mx, my):
-                draw.rect(screen, L_BLUE, eval("Tool_" + str(i)))
-                if i < 5:
-                    screen.blit(eval("tool_" + str(i)), (10, 50 + 85 * i))
-                else:
-                    screen.blit(eval("tool_" + str(i)), (115, 50 + 85 * (i - 5)))
-                if mb[0] == 1:
-                    tool = i
+    for i in range(10):
+        if eval("Tool_" + str(i)).collidepoint(mx, my):
+            draw.rect(screen, L_BLUE, eval("Tool_" + str(i)))
+            if i < 5:
+                screen.blit(eval("tool_" + str(i)), (10, 50 + 85 * i))
+            else:
+                screen.blit(eval("tool_" + str(i)), (115, 50 + 85 * (i - 5)))
+            if mb[0] == 1:
+                tool = i
 
     for i in range(10):
         if tool == i:
@@ -148,14 +167,24 @@ while running:
                 screen.blit(eval("tool_" + str(i)), (10, 50 + 85 * i))
             else:
                 screen.blit(eval("tool_" + str(i)), (115, 50 + 85 * (i - 5)))
+    if tool != 1:
+        oldX, oldY = mx, my
 
-    pencilX, pencilY = mx, my
+    if tool != 1:
+        capture = screen.subsurface(canvas).copy()
+    if 0 <= tool < 5 and canvas.collidepoint(mx, my):
+        try:
+            mouse.set_visible(False)
+            cursor_image = transform.scale(eval("tool_" + str(tool)), (16, 16))
+            screen.blit(cursor_image, (mx - 8, my - 8, 16, 16))
+        except NameError:
+            # This code shouldn't reach the except, because the NameError was caused by the tool being -1
+            mouse.set_visible(True)
+            print("NameError")
+    else:
+        mouse.set_visible(True)
+
     display.flip()
-    capture = screen.subsurface(canvas).copy()
-    screen.fill(RED)
-    draw.rect(screen, WHITE, canvas, 0)
-    draw.rect(screen, BLACK, (245, 45, 1110, 610), 10)
-    screen.blit(capture, (250, 50))
     c.tick(144)
+   
 quit()
-
