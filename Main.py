@@ -42,7 +42,7 @@ size_heading = main_font.render("Size", True, BLACK)  # The size buttons and men
 add_size = main_font.render("+", True, BLACK)
 sub_size = main_font.render("-", True, BLACK)
 
-icon = image.load("images/paint.png") # Program Icon and heading
+icon = image.load("images/paint.png")  # Program Icon and heading
 display.set_icon(icon)
 display.set_caption("Paint Project")
 
@@ -56,14 +56,14 @@ draw.rect(screen, BLACK, (245, 45, 1110, 610), 10)
 draw.rect(screen, WHITE, canvas, 0)
 capture = screen.subsurface(canvas).copy()
 
-tool = 0
+tool = 0  # Setting the default values
 colour = BLACK
 size = 5
 oldX = oldY = 0
 
 c = time.Clock()
 
-Tool_0 = Rect(10, 50, 85, 85)
+Tool_0 = Rect(10, 50, 85, 85)  # Rectangle boundary box for each tool
 Tool_1 = Rect(10, 135, 85, 85)
 Tool_2 = Rect(10, 220, 85, 85)
 Tool_3 = Rect(10, 305, 85, 85)
@@ -85,53 +85,88 @@ sub_rect = Rect(330, 725, 30, 30)
 
 user_input = ""
 
-undo = []
+undo = [capture]
 redo = []
 
-
-def save():
-    global tool
-    tool = -1
-    file_name = filedialog.asksaveasfilename(defaultextension=".png",
-                                             filetypes=(("PNG", "*.png"), ("All Files", "*.*")))
-    if len(file_name) > 0:
-        if "." in file_name:
-            image.save(screen.subsurface(canvas), file_name)
-        else:
-            image.save(screen.subsurface(canvas), file_name + ".png")
-
-
 while running:
-    screen.fill(RED)
+    screen.fill(RED)  # Refreshing the screen
     draw.rect(screen, WHITE, canvas, 0)
     draw.rect(screen, BLACK, (245, 45, 1110, 610), 10)
     screen.blit(capture, (250, 50))
 
-    for evt in event.get():
+    for evt in event.get():  # Main event loop
         if evt.type == QUIT:
             running = False
         if evt.type == MOUSEBUTTONDOWN:
             oldX, oldY = evt.pos
-            if evt.button == 4 and size < 100:
+
+            if evt.button == 4 and size < 100:  # Mousewheel to add/decrease size
                 size += 1
             if evt.button == 5 and size > 1:
                 size -= 1
-            if add_rect.collidepoint(mx, my) and size < 100:
+
+            if add_rect.collidepoint(mx, my) and size < 100:  # Clicking on the buttons to add/decrease size
                 size += 1
             if sub_rect.collidepoint(mx, my) and size > 1:
                 size -= 1
-            if tool == 11 and canvas.collidepoint(mx, my):
-                display_input = main_font.render(user_input, True, colour)
-                input_box = Rect(mx, my, width - mx, height - my)
+
+            if tool == 11 and canvas.collidepoint(mx, my):  # User inputted text
+                display_input = main_font.render(user_input, True, colour)  # Rendering the input in the colour
+                input_box = Rect(mx, my, width - mx, height - my)  # A boundary box between the width and height and pos
                 screen.blit(display_input, input_box)
 
+            if Tool_5.collidepoint(mx, my):
+                tool = -1
+                file_name = filedialog.asksaveasfilename(defaultextension=".png",
+                                                         filetypes=(("PNG", "*.png"), ("All Files", "*.*")))
+                if len(file_name) > 0:
+                    if "." in file_name:
+                        image.save(screen.subsurface(canvas), file_name)
+                    else:
+                        image.save(screen.subsurface(canvas), file_name + ".png")
+
+            if Tool_6.collidepoint(mx, my):
+                try:
+                    file_name = filedialog.askopenfilename()
+                    imported = image.load(file_name)
+                    screen.blit(imported, (250, 50))
+                    capture = screen.subsurface(canvas).copy()
+                    screen.blit(capture, (250, 50))
+                except error:
+                    pass
+                tool = -1
+
+            if Tool_9.collidepoint(mx, my):
+                draw.rect(screen, WHITE, canvas)
+                tool = -1
+
+            if Tool_7.collidepoint(mx, my):
+                if len(undo) > 0:
+                    del undo[-1]
+                try:
+                    screen.blit(undo[-1], canvas)
+                except IndexError:
+                    screen.subsurface(canvas).copy()
+
+            # if Tool_8.collidepoint(mx, my):
+            #     if len(redo) > 0:
+            #         undo.append(redo[-1])
+            #         del redo[-1]
+            #     try:
+            #         screen.blit(redo[-1], canvas)
+            #     except IndexError:
+            #         screen.subsurface(canvas).copy()
+            #         # out of order or something
+            print(undo, redo)
         if evt.type == MOUSEBUTTONUP:
+            if tool == 0:
+                undo.append(screen.subsurface(canvas).copy())
             screen.blit(capture, (250, 50))
+
             if tool == 1:
                 draw.line(screen, colour, (oldX, oldY), (mx, my), size)
-            elif tool == 5:
-                save()
             capture = screen.subsurface(canvas).copy()
+
         if evt.type == KEYDOWN:
             if tool == 11:
                 if evt.key == K_RETURN:
@@ -183,24 +218,23 @@ while running:
             colour = screen.get_at((mx, my))
 
     if mb[0] == 1 and canvas.collidepoint(mx, my):
-        if tool == 0:
+        if tool == 0 or tool == 2:
             distX = mx - oldX
             distY = my - oldY
             dist = int(((my - oldY) ** 2 + (mx - oldX) ** 2) ** 0.5)
             for i in range(dist):
                 dotX = distX * i / dist + oldX
                 dotY = distY * i / dist + oldY
-                draw.circle(screen, colour, (int(dotX), int(dotY)), size)
-            capture = screen.subsurface(canvas).copy()
+                if tool == 0:
+                    draw.circle(screen, colour, (int(dotX), int(dotY)), size)
+                else:
+                    draw.circle(screen, WHITE, (int(dotX), int(dotY)), size)
 
         elif tool == 1:
             screen.set_clip(canvas)
             screen.blit(capture, canvas)
             draw.line(screen, colour, (mx, my), (oldX, oldY), size)
             screen.set_clip(None)
-
-        elif tool == 2:
-            draw.circle(screen, WHITE, (mx, my), size)
 
         elif tool == 3:
             for i in range(size // 3):
@@ -213,21 +247,6 @@ while running:
             draw.line(screen, colour, (mx, my), (oldX, oldY), min(5, size))
         elif tool == 10:
             colour = screen.get_at((mx, my))
-
-    if tool == 6:
-        try:
-            file_name = filedialog.askopenfilename()
-            imported = image.load(file_name)
-            screen.blit(imported, (250, 50))
-            capture = screen.subsurface(canvas).copy()
-            screen.blit(capture, (250, 50))
-        except error:
-            pass
-        tool = -1
-        continue
-
-    elif tool == 9:
-        draw.rect(screen, WHITE, canvas)
 
     for i in range(15):
         if eval("Tool_" + str(i)).collidepoint(mx, my):
