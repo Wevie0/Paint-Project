@@ -14,13 +14,18 @@ while running:
 		tool = "eraser"
 	<more if for ALL tools>
 	
+	#! Fix eraser
+	#! Increase/Decrease thickness
+	#! Dropper tool
+	#! hide mouse cursor, custom image
+	#! Display co-ordinates
+	#! Current size
+	#! Text tool 
 	# Draw shapes
-	# Fill tool
 	# Undo and Redo
-	# Display text
-	# Increase/Decrease thickness
-	# Dropper tool
-	# hide mouse cursor, custom image
+	# Text Menu Preview
+	# Fill tool
+	# Drag select
 	
 	
 	# Use tool
