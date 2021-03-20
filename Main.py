@@ -1,5 +1,4 @@
 from pygame import *
-from math import *
 from random import *
 from tkinter import *
 from tkinter import filedialog
@@ -7,6 +6,9 @@ from tkinter import filedialog
 init()  # Initialization
 root = Tk()
 root.withdraw()
+
+width, height = 1400, 800
+screen = display.set_mode((width, height))
 
 RED = (255, 0, 0)  # Constant colour RGB values
 GREY = (127, 127, 127)
@@ -18,23 +20,27 @@ WHITE = (255, 255, 255)
 L_BLUE = (173, 216, 230)
 L_GREEN = (157, 255, 176)
 
-colour_wheel = image.load("images/wheel.png")  # Loading images
-black_white = image.load("images/blackwhite.jpg")
-tool_0 = image.load("images/brush.png")
-tool_1 = image.load("images/line.png")
-tool_2 = image.load("images/eraser.png")
-tool_3 = image.load("images/spray-paint.png")
-tool_4 = image.load("images/pencil.png")
-tool_5 = image.load("images/save.png")
-tool_6 = image.load("images/load.png")
-tool_7 = image.load("images/undo.png")
-tool_8 = image.load("images/redo.png")
-tool_9 = image.load("images/delete.png")
-tool_10 = image.load("images/dropper.png")
-tool_11 = image.load("images/text.png")
-tool_12 = image.load("images/triangle.png")
-tool_13 = image.load("images/rectangle.png")
-tool_14 = image.load("images/circle.png")
+back = image.load("images/background0.jpeg").convert_alpha(screen)
+colour_wheel = image.load("images/wheel.png").convert_alpha(screen)
+black_white = image.load("images/blackwhite.jpg").convert_alpha(screen)
+frame = image.load("images/frame.png").convert_alpha(screen)
+
+logo = image.load("images/logo.png").convert_alpha(screen)
+tool_0 = image.load("images/brush.png").convert_alpha(screen)
+tool_1 = image.load("images/line.png").convert_alpha(screen)
+tool_2 = image.load("images/eraser.png").convert_alpha(screen)
+tool_3 = image.load("images/spray-paint.png").convert_alpha(screen)
+tool_4 = image.load("images/pencil.png").convert_alpha(screen)
+tool_5 = image.load("images/save.png").convert_alpha(screen)
+tool_6 = image.load("images/load.png").convert_alpha(screen)
+tool_7 = image.load("images/undo.png").convert_alpha(screen)
+tool_8 = image.load("images/redo.png").convert_alpha(screen)
+tool_9 = image.load("images/delete.png").convert_alpha(screen)
+tool_10 = image.load("images/dropper.png").convert_alpha(screen)
+tool_11 = image.load("images/text.png").convert_alpha(screen)
+tool_12 = image.load("images/triangle.png").convert_alpha(screen)
+tool_13 = image.load("images/rectangle.png").convert_alpha(screen)
+tool_14 = image.load("images/circle.png").convert_alpha(screen)
 
 main_font = font.Font("Fink Heavy.ttf", 32)  # Loading the Animal Crossing Font
 
@@ -46,13 +52,9 @@ icon = image.load("images/paint.png")  # Program Icon and heading
 display.set_icon(icon)
 display.set_caption("Paint Project")
 
-width, height = 1400, 800
-screen = display.set_mode((width, height))
-
 running = True
 
-canvas = Rect(250, 50, 1100, 600)  # Main canvas and frame
-draw.rect(screen, BLACK, (245, 45, 1110, 610), 10)
+canvas = Rect(285, 90, 1030, 530)  # Main canvas and frame
 draw.rect(screen, WHITE, canvas, 0)
 capture = screen.subsurface(canvas).copy()
 
@@ -60,6 +62,7 @@ tool = 0  # Setting the default values
 colour = BLACK
 size = 5
 oldX = oldY = 0
+mx = my = 0
 
 c = time.Clock()
 
@@ -79,7 +82,7 @@ Tool_12 = Rect(570, 685, 85, 85)
 Tool_13 = Rect(655, 685, 85, 85)
 Tool_14 = Rect(740, 685, 85, 85)
 
-size_display = Rect(260, 720, 50, 50)
+size_display = Rect(260, 740, 50, 50)
 add_rect = Rect(330, 685, 30, 30)
 sub_rect = Rect(330, 725, 30, 30)
 
@@ -89,10 +92,10 @@ undo = [capture]
 redo = []
 
 while running:
-    screen.fill(RED)  # Refreshing the screen
+    screen.blit(back, (0, 0))  # Refreshing the screen
     draw.rect(screen, WHITE, canvas, 0)
-    draw.rect(screen, BLACK, (245, 45, 1110, 610), 10)
-    screen.blit(capture, (250, 50))
+    screen.blit(capture, canvas)
+    screen.blit(logo, (1120, 670))
 
     for evt in event.get():  # Main event loop
         if evt.type == QUIT:
@@ -129,15 +132,16 @@ while running:
                 try:
                     file_name = filedialog.askopenfilename()
                     imported = image.load(file_name)
-                    screen.blit(imported, (250, 50))
+                    screen.blit(imported, canvas)
                     capture = screen.subsurface(canvas).copy()
-                    screen.blit(capture, (250, 50))
+                    screen.blit(capture, canvas)
                 except error:
                     pass
                 tool = -1
 
             if Tool_9.collidepoint(mx, my):
                 draw.rect(screen, WHITE, canvas)
+                screen.blit(frame, (200, 20))
                 tool = -1
 
             if Tool_7.collidepoint(mx, my):
@@ -148,20 +152,20 @@ while running:
                 except IndexError:
                     screen.subsurface(canvas).copy()
 
-            # if Tool_8.collidepoint(mx, my):
-            #     if len(redo) > 0:
-            #         undo.append(redo[-1])
-            #         del redo[-1]
-            #     try:
-            #         screen.blit(redo[-1], canvas)
-            #     except IndexError:
-            #         screen.subsurface(canvas).copy()
-            #         # out of order or something
+            if Tool_8.collidepoint(mx, my):
+                if len(redo) > 0:
+                    undo.append(redo[-1])
+                    del redo[-1]
+                try:
+                    screen.blit(redo[-1], canvas)
+                except IndexError:
+                    screen.subsurface(canvas).copy()
+                    # out of order or something
             print(undo, redo)
         if evt.type == MOUSEBUTTONUP:
             if tool == 0:
                 undo.append(screen.subsurface(canvas).copy())
-            screen.blit(capture, (250, 50))
+            screen.blit(capture, canvas)
 
             if tool == 1:
                 draw.line(screen, colour, (oldX, oldY), (mx, my), size)
@@ -204,7 +208,7 @@ while running:
     screen.blit(colour_wheel, (10, 485))
     screen.blit(black_white, (15, 685))
     draw.rect(screen, colour, (10, 485, 30, 30))
-    screen.blit(size_heading, (250, 685))
+    screen.blit(size_heading, (250, 700))
     current_size = main_font.render(str(size), True, BLACK)
     screen.blit(current_size, size_display)
 
@@ -293,6 +297,7 @@ while running:
     else:
         mouse.set_visible(True)
 
+    screen.blit(frame, (200, 20))
     display.flip()
     c.tick(144)
 quit()
