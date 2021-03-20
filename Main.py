@@ -1,5 +1,4 @@
 from pygame import *
-from math import *
 from random import *
 from tkinter import *
 from tkinter import filedialog
@@ -7,6 +6,9 @@ from tkinter import filedialog
 init()  # Initialization
 root = Tk()
 root.withdraw()
+
+width, height = 1400, 800
+screen = display.set_mode((width, height))
 
 RED = (255, 0, 0)  # Constant colour RGB values
 GREY = (127, 127, 127)
@@ -18,26 +20,27 @@ WHITE = (255, 255, 255)
 L_BLUE = (173, 216, 230)
 L_GREEN = (157, 255, 176)
 
-back = image.load("images/background0.jpeg")
-colour_wheel = image.load("images/wheel.png")  # Loading images
-black_white = image.load("images/blackwhite.jpg")
-frame = image.load("images/frame.png")
-logo = image.load("images/logo.png")
-tool_0 = image.load("images/brush.png")
-tool_1 = image.load("images/line.png")
-tool_2 = image.load("images/eraser.png")
-tool_3 = image.load("images/spray-paint.png")
-tool_4 = image.load("images/pencil.png")
-tool_5 = image.load("images/save.png")
-tool_6 = image.load("images/load.png")
-tool_7 = image.load("images/undo.png")
-tool_8 = image.load("images/redo.png")
-tool_9 = image.load("images/delete.png")
-tool_10 = image.load("images/dropper.png")
-tool_11 = image.load("images/text.png")
-tool_12 = image.load("images/triangle.png")
-tool_13 = image.load("images/rectangle.png")
-tool_14 = image.load("images/circle.png")
+back = image.load("images/background0.jpeg").convert_alpha(screen)
+colour_wheel = image.load("images/wheel.png").convert_alpha(screen)
+black_white = image.load("images/blackwhite.jpg").convert_alpha(screen)
+frame = image.load("images/frame.png").convert_alpha(screen)
+
+logo = image.load("images/logo.png").convert_alpha(screen)
+tool_0 = image.load("images/brush.png").convert_alpha(screen)
+tool_1 = image.load("images/line.png").convert_alpha(screen)
+tool_2 = image.load("images/eraser.png").convert_alpha(screen)
+tool_3 = image.load("images/spray-paint.png").convert_alpha(screen)
+tool_4 = image.load("images/pencil.png").convert_alpha(screen)
+tool_5 = image.load("images/save.png").convert_alpha(screen)
+tool_6 = image.load("images/load.png").convert_alpha(screen)
+tool_7 = image.load("images/undo.png").convert_alpha(screen)
+tool_8 = image.load("images/redo.png").convert_alpha(screen)
+tool_9 = image.load("images/delete.png").convert_alpha(screen)
+tool_10 = image.load("images/dropper.png").convert_alpha(screen)
+tool_11 = image.load("images/text.png").convert_alpha(screen)
+tool_12 = image.load("images/triangle.png").convert_alpha(screen)
+tool_13 = image.load("images/rectangle.png").convert_alpha(screen)
+tool_14 = image.load("images/circle.png").convert_alpha(screen)
 
 main_font = font.Font("Fink Heavy.ttf", 32)  # Loading the Animal Crossing Font
 
@@ -48,9 +51,6 @@ sub_size = main_font.render("-", True, BLACK)
 icon = image.load("images/paint.png")  # Program Icon and heading
 display.set_icon(icon)
 display.set_caption("Paint Project")
-
-width, height = 1450, 800
-screen = display.set_mode((width, height))
 
 running = True
 
@@ -152,15 +152,15 @@ while running:
                 except IndexError:
                     screen.subsurface(canvas).copy()
 
-            # if Tool_8.collidepoint(mx, my):
-            #     if len(redo) > 0:
-            #         undo.append(redo[-1])
-            #         del redo[-1]
-            #     try:
-            #         screen.blit(redo[-1], canvas)
-            #     except IndexError:
-            #         screen.subsurface(canvas).copy()
-            #         # out of order or something
+            if Tool_8.collidepoint(mx, my):
+                if len(redo) > 0:
+                    undo.append(redo[-1])
+                    del redo[-1]
+                try:
+                    screen.blit(redo[-1], canvas)
+                except IndexError:
+                    screen.subsurface(canvas).copy()
+                    # out of order or something
             print(undo, redo)
         if evt.type == MOUSEBUTTONUP:
             if tool == 0:
@@ -296,6 +296,7 @@ while running:
             print("NameError")
     else:
         mouse.set_visible(True)
+
     screen.blit(frame, (200, 20))
     display.flip()
     c.tick(144)
