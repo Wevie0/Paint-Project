@@ -18,8 +18,11 @@ WHITE = (255, 255, 255)
 L_BLUE = (173, 216, 230)
 L_GREEN = (157, 255, 176)
 
+back = image.load("images/background0.jpeg")
 colour_wheel = image.load("images/wheel.png")  # Loading images
 black_white = image.load("images/blackwhite.jpg")
+frame = image.load("images/frame.png")
+logo = image.load("images/logo.png")
 tool_0 = image.load("images/brush.png")
 tool_1 = image.load("images/line.png")
 tool_2 = image.load("images/eraser.png")
@@ -46,13 +49,12 @@ icon = image.load("images/paint.png")  # Program Icon and heading
 display.set_icon(icon)
 display.set_caption("Paint Project")
 
-width, height = 1400, 800
+width, height = 1450, 800
 screen = display.set_mode((width, height))
 
 running = True
 
-canvas = Rect(250, 50, 1100, 600)  # Main canvas and frame
-draw.rect(screen, BLACK, (245, 45, 1110, 610), 10)
+canvas = Rect(285, 90, 1030, 530)  # Main canvas and frame
 draw.rect(screen, WHITE, canvas, 0)
 capture = screen.subsurface(canvas).copy()
 
@@ -60,6 +62,7 @@ tool = 0  # Setting the default values
 colour = BLACK
 size = 5
 oldX = oldY = 0
+mx = my = 0
 
 c = time.Clock()
 
@@ -79,7 +82,7 @@ Tool_12 = Rect(570, 685, 85, 85)
 Tool_13 = Rect(655, 685, 85, 85)
 Tool_14 = Rect(740, 685, 85, 85)
 
-size_display = Rect(260, 720, 50, 50)
+size_display = Rect(260, 740, 50, 50)
 add_rect = Rect(330, 685, 30, 30)
 sub_rect = Rect(330, 725, 30, 30)
 
@@ -89,10 +92,10 @@ undo = [capture]
 redo = []
 
 while running:
-    screen.fill(RED)  # Refreshing the screen
+    screen.blit(back, (0, 0))  # Refreshing the screen
     draw.rect(screen, WHITE, canvas, 0)
-    draw.rect(screen, BLACK, (245, 45, 1110, 610), 10)
-    screen.blit(capture, (250, 50))
+    screen.blit(capture, canvas)
+    screen.blit(logo, (1120, 670))
 
     for evt in event.get():  # Main event loop
         if evt.type == QUIT:
@@ -129,15 +132,16 @@ while running:
                 try:
                     file_name = filedialog.askopenfilename()
                     imported = image.load(file_name)
-                    screen.blit(imported, (250, 50))
+                    screen.blit(imported, canvas)
                     capture = screen.subsurface(canvas).copy()
-                    screen.blit(capture, (250, 50))
+                    screen.blit(capture, canvas)
                 except error:
                     pass
                 tool = -1
 
             if Tool_9.collidepoint(mx, my):
                 draw.rect(screen, WHITE, canvas)
+                screen.blit(frame, (200, 20))
                 tool = -1
 
             if Tool_7.collidepoint(mx, my):
@@ -161,7 +165,7 @@ while running:
         if evt.type == MOUSEBUTTONUP:
             if tool == 0:
                 undo.append(screen.subsurface(canvas).copy())
-            screen.blit(capture, (250, 50))
+            screen.blit(capture, canvas)
 
             if tool == 1:
                 draw.line(screen, colour, (oldX, oldY), (mx, my), size)
@@ -204,7 +208,7 @@ while running:
     screen.blit(colour_wheel, (10, 485))
     screen.blit(black_white, (15, 685))
     draw.rect(screen, colour, (10, 485, 30, 30))
-    screen.blit(size_heading, (250, 685))
+    screen.blit(size_heading, (250, 700))
     current_size = main_font.render(str(size), True, BLACK)
     screen.blit(current_size, size_display)
 
@@ -292,7 +296,7 @@ while running:
             print("NameError")
     else:
         mouse.set_visible(True)
-
+    screen.blit(frame, (200, 20))
     display.flip()
     c.tick(144)
 quit()
