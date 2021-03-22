@@ -95,7 +95,7 @@ size_display = Rect(260, 740, 50, 50)
 add_rect = Rect(330, 685, 30, 30)
 sub_rect = Rect(330, 725, 30, 30)
 
-pauseplay_rect = Rect(700, 5, 40, 40)
+pause_play_rect = Rect(700, 5, 40, 40)
 skip_rect = Rect(740, 5, 40, 40)
 
 user_input = ""
@@ -197,7 +197,7 @@ while running:
                 elif tool == 14 and canvas.collidepoint(mx, my):
                     oldX, oldY = mx, my
 
-                if pauseplay_rect.collidepoint(mx, my):
+                if pause_play_rect.collidepoint(mx, my):
                     if mixer.music.get_busy():
                         mixer.music.pause()
                     else:
@@ -218,47 +218,48 @@ while running:
 
                 if tool == 1:
                     draw.line(screen, colour, (oldX, oldY), (mx, my), size)
+
                 elif tool == 13:
-                    if (mx - oldX) > (2 * size) and (my - oldY) > (2 * size):  # 4th Quadrant
-                        draw.rect(screen, colour, (oldX, oldY, mx - oldX, my - oldY), size)
-                        # draw.rect(screen, colour, (oldX - size // 2, oldY - size // 2, size, size), 0)
-                        # draw.rect(screen, colour, (mx - size // 2, oldY - size // 2, size, size), 0)
-                        draw.line(screen, colour, (mx + size // 2, oldY), (oldX - size // 2, oldY), size)
-                        # draw.rect(screen, colour, (mx - size // 2, oldY - size // 2, size, size), 0)
-                        # draw.rect(screen, colour, (oldX - size // 2, my + size // 2, size, size), 0)
-                        # draw.rect(screen, colour, (oldX + size // 2, my + size // 2, size, size), 0)
-                    elif (mx - oldX) > (2 * size) and (my - oldY) < -(2 * size):  # 1st Quadrant
-                        draw.rect(screen, colour, (oldX, my, mx - oldX, oldY - my), size)
-                    elif (mx - oldX) < -(2 * size) and (my - oldY) < -(2 * size):  # 2nd Quadrant
-                        draw.rect(screen, colour, (mx, my, oldX - mx, oldY - my), size)
-                    elif (mx - oldX) < -(2 * size) and (my - oldY) > (2 * size):  # 3rd Quadrant
-                        draw.rect(screen, colour, (mx, oldY, oldX - mx, my - oldY), size)
-                    else:
-                        draw.line(screen, colour, (oldX, my - size // 2), (mx, my - size // 2), 2 * size)
+                    draw.rect(screen, colour, draw_rect, size)
+                    if (mx - oldX) > 0 and (my - oldY) > 0 or (my - oldY) < 0 < (mx - oldX):  # 4th Quadrant or 1st
+                        if size % 2 == 1:
+                            draw.line(screen, colour, (mx + size // 2 - 1, oldY), (oldX - size // 2, oldY), size)
+                            draw.line(screen, colour, (mx + size // 2 - 1, my), (oldX - size // 2, my), size)
+                        else:
+                            draw.line(screen, colour, (mx + size // 2 - 1, oldY), (oldX - size // 2 + 1, oldY), size)
+                            draw.line(screen, colour, (mx + size // 2 - 1, my), (oldX - size // 2 + 1, my), size)
+
+                    elif (mx - oldX) < 0 and (my - oldY) < 0 or (mx - oldX) < 0 < (my - oldY):  # 2nd Quadrant or 3rd
+                        if size % 2 == 1:
+                            draw.line(screen, colour, (mx - size // 2, oldY), (oldX + size // 2 - 1, oldY), size)
+                            draw.line(screen, colour, (mx - size // 2, my), (oldX + size // 2 - 1, my), size)
+                        else:
+                            draw.line(screen, colour, (mx - size // 2 + 1, oldY), (oldX + size // 2 - 1, oldY), size)
+                            draw.line(screen, colour, (mx - size // 2 + 1, my), (oldX + size // 2 - 1, my), size)
 
                 elif tool == 14:
-                    if mx - oldX >= 0:
+                    if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
                         draw.ellipse(screen, colour, (oldX, oldY, mx - oldX, my - oldY), size)
-                    else:
+                    elif (my - oldY) < 0 < (mx - oldX):  # 1st Quadrant
+                        draw.ellipse(screen, colour, (oldX, my, mx - oldX, oldY - my), size)
+                    elif (mx - oldX) < 0 and (my - oldY) < 0:  # 2nd Quadrant
                         draw.ellipse(screen, colour, (mx, my, oldX - mx, oldY - my), size)
+                    elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
+                        draw.ellipse(screen, colour, (mx, oldY, oldX - mx, my - oldY), size)
 
                 elif tool == 15:
-                    if (mx - oldX) > (2 * size) and (my - oldY) > (2 * size):  # 4th Quadrant
-                        draw.rect(screen, colour, (oldX, oldY, mx - oldX, my - oldY), 0)
-                    elif (mx - oldX) > (2 * size) and (my - oldY) < -(2 * size):  # 1st Quadrant
-                        draw.rect(screen, colour, (oldX, my, mx - oldX, oldY - my), 0)
-                    elif (mx - oldX) < -(2 * size) and (my - oldY) < -(2 * size):  # 2nd Quadrant
-                        draw.rect(screen, colour, (mx, my, oldX - mx, oldY - my), 0)
-                    elif (mx - oldX) < -(2 * size) and (my - oldY) > (2 * size):  # 3rd Quadrant
-                        draw.rect(screen, colour, (mx, oldY, oldX - mx, my - oldY), 0)
-                    else:
-                        draw.line(screen, colour, (oldX, my - size // 2), (mx, my - size // 2), 2 * size)
+                    draw.rect(screen, colour, draw_rect, 0)
 
                 elif tool == 16:
-                    if mx - oldX >= 0:
+                    if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
                         draw.ellipse(screen, colour, (oldX, oldY, mx - oldX, my - oldY), 0)
-                    else:
+                    elif (my - oldY) < 0 < (mx - oldX):  # 1st Quadrant
+                        draw.ellipse(screen, colour, (oldX, my, mx - oldX, oldY - my), 0)
+                    elif (mx - oldX) < 0 and (my - oldY) < 0:  # 2nd Quadrant
                         draw.ellipse(screen, colour, (mx, my, oldX - mx, oldY - my), 0)
+                    elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
+                        draw.ellipse(screen, colour, (mx, oldY, oldX - mx, my - oldY), 0)
+
                 capture = screen.subsurface(canvas).copy()
 
         if evt.type == KEYDOWN:
@@ -324,6 +325,7 @@ while running:
             colour = screen.get_at((mx, my))
 
     if mb[0] == 1:
+        screen.set_clip(canvas)
         if tool == 0 or tool == 2:
             distX = mx - oldX
             distY = my - oldY
@@ -337,10 +339,8 @@ while running:
                     draw.circle(screen, WHITE, (int(dotX), int(dotY)), size)
 
         elif tool == 1:
-            screen.set_clip(canvas)
             screen.blit(capture, canvas)
             draw.line(screen, colour, (mx, my), (oldX, oldY), size)
-            screen.set_clip(None)
 
         elif tool == 3:
             for i in range(size // 3):
@@ -352,56 +352,58 @@ while running:
         elif tool == 4:
             draw.line(screen, colour, (mx, my), (oldX, oldY), min(5, size))
 
-        elif tool == 10:
+        elif tool == 10 and canvas.collidepoint(mx, my):
             colour = screen.get_at((mx, my))
 
         elif tool == 13:
-            screen.set_clip(canvas)
             screen.blit(capture, canvas)
-            if (mx - oldX) > (2 * size) and (my - oldY) > (2 * size):  # 4th Quadrant
-                draw.rect(screen, colour, (oldX, oldY, mx - oldX, my - oldY), size)
-            elif (mx - oldX) > (2 * size) and (my - oldY) < -(2 * size):  # 1st Quadrant
-                draw.rect(screen, colour, (oldX, my, mx - oldX, oldY - my), size)
-            elif (mx - oldX) < -(2 * size) and (my - oldY) < -(2 * size):  # 2nd Quadrant
-                draw.rect(screen, colour, (mx, my, oldX - mx, oldY - my), size)
-            elif (mx - oldX) < -(2 * size) and (my - oldY) > (2 * size):  # 3rd Quadrant
-                draw.rect(screen, colour, (mx, oldY, oldX - mx, my - oldY), size)
-            else:
-                draw.line(screen, colour, (oldX, my - size // 2), (mx, my - size // 2), 2 * size)
-            screen.set_clip(None)
+            draw_rect = Rect(oldX, oldY, mx - oldX, my - oldY)
+            draw_rect.normalize()
+            draw.rect(screen, colour, draw_rect, size)
+            if (mx - oldX) > 0 and (my - oldY) > 0 or (my - oldY) < 0 < (mx - oldX):  # 4th Quadrant or 1st
+                if size % 2 == 1:
+                    draw.line(screen, colour, (mx + size // 2 - 1, oldY), (oldX - size // 2, oldY), size)
+                    draw.line(screen, colour, (mx + size // 2 - 1, my), (oldX - size // 2, my), size)
+                else:
+                    draw.line(screen, colour, (mx + size // 2 - 1, oldY), (oldX - size // 2 + 1, oldY), size)
+                    draw.line(screen, colour, (mx + size // 2 - 1, my), (oldX - size // 2 + 1, my), size)
+
+            elif (mx - oldX) < 0 and (my - oldY) < 0 or (mx - oldX) < 0 < (my - oldY):  # 2nd Quadrant or 3rd
+                if size % 2 == 1:
+                    draw.line(screen, colour, (mx - size // 2, oldY), (oldX + size // 2 - 1, oldY), size)
+                    draw.line(screen, colour, (mx - size // 2, my), (oldX + size // 2 - 1, my), size)
+                else:
+                    draw.line(screen, colour, (mx - size // 2 + 1, oldY), (oldX + size // 2 - 1, oldY), size)
+                    draw.line(screen, colour, (mx - size // 2 + 1, my), (oldX + size // 2 - 1, my), size)
 
         elif tool == 14:
-            screen.set_clip(canvas)
             screen.blit(capture, canvas)
-            if mx - oldX >= 0:
+            if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
                 draw.ellipse(screen, colour, (oldX, oldY, mx - oldX, my - oldY), size)
-            else:
+            elif (my - oldY) < 0 < (mx - oldX):  # 1st Quadrant
+                draw.ellipse(screen, colour, (oldX, my, mx - oldX, oldY - my), size)
+            elif (mx - oldX) < 0 and (my - oldY) < 0:  # 2nd Quadrant
                 draw.ellipse(screen, colour, (mx, my, oldX - mx, oldY - my), size)
-            screen.set_clip(None)
+            elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
+                draw.ellipse(screen, colour, (mx, oldY, oldX - mx, my - oldY), size)
 
         elif tool == 15:
-            screen.set_clip(canvas)
             screen.blit(capture, canvas)
-            if (mx - oldX) > (2 * size) and (my - oldY) > (2 * size):  # 4th Quadrant
-                draw.rect(screen, colour, (oldX, oldY, mx - oldX, my - oldY), 0)
-            elif (mx - oldX) > (2 * size) and (my - oldY) < -(2 * size):  # 1st Quadrant
-                draw.rect(screen, colour, (oldX, my, mx - oldX, oldY - my), 0)
-            elif (mx - oldX) < -(2 * size) and (my - oldY) < -(2 * size):  # 2nd Quadrant
-                draw.rect(screen, colour, (mx, my, oldX - mx, oldY - my), 0)
-            elif (mx - oldX) < -(2 * size) and (my - oldY) > (2 * size):  # 3rd Quadrant
-                draw.rect(screen, colour, (mx, oldY, oldX - mx, my - oldY), 0)
-            else:
-                draw.line(screen, colour, (oldX, my - size // 2), (mx, my - size // 2), 2 * size)
-            screen.set_clip(None)
+            draw_rect = Rect(oldX, oldY, mx - oldX, my - oldY)
+            draw_rect.normalize()
+            draw.rect(screen, colour, draw_rect, 0)
 
         elif tool == 16:
-            screen.set_clip(canvas)
             screen.blit(capture, canvas)
-            if mx - oldX >= 0:
+            if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
                 draw.ellipse(screen, colour, (oldX, oldY, mx - oldX, my - oldY), 0)
-            else:
+            elif (my - oldY) < 0 < (mx - oldX):  # 1st Quadrant
+                draw.ellipse(screen, colour, (oldX, my, mx - oldX, oldY - my), 0)
+            elif (mx - oldX) < 0 and (my - oldY) < 0:  # 2nd Quadrant
                 draw.ellipse(screen, colour, (mx, my, oldX - mx, oldY - my), 0)
-            screen.set_clip(None)
+            elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
+                draw.ellipse(screen, colour, (mx, oldY, oldX - mx, my - oldY), 0)
+        screen.set_clip(None)
 
     for i in range(17):
         if eval("Tool_" + str(i)).collidepoint(mx, my):
@@ -436,27 +438,27 @@ while running:
     track = track[0: track.rfind('.')]
     currently_playing = main_font.render("Playing: " + track, True, BLACK)
     screen.blit(currently_playing, (300, 0))
-    draw.rect(screen, RED, pauseplay_rect)
+    draw.rect(screen, RED, pause_play_rect)
     draw.rect(screen, RED, skip_rect)
 
     draw.rect(screen, BLACK, (700, 5, 40, 40), 2)
     draw.rect(screen, BLACK, (740, 5, 40, 40), 2)
 
-    if pauseplay_rect.collidepoint(mx, my):
-        draw.rect(screen, L_BLUE, pauseplay_rect)
+    if pause_play_rect.collidepoint(mx, my):
+        draw.rect(screen, L_BLUE, pause_play_rect)
         if mixer.music.get_busy():
-            screen.blit(pause_button, pauseplay_rect)
+            screen.blit(pause_button, pause_play_rect)
         else:
-            screen.blit(play_button, pauseplay_rect)
+            screen.blit(play_button, pause_play_rect)
 
     if skip_rect.collidepoint(mx, my):
         draw.rect(screen, L_BLUE, skip_rect)
         screen.blit(skip_button, skip_rect)
 
     if mixer.music.get_busy():  # Note: needs pygame v2.0.1 to work properly, otherwise can not be unpaused
-        screen.blit(pause_button, pauseplay_rect)
+        screen.blit(pause_button, pause_play_rect)
     else:
-        screen.blit(play_button, pauseplay_rect)
+        screen.blit(play_button, pause_play_rect)
 
     screen.blit(skip_button, skip_rect)
 
@@ -482,3 +484,4 @@ while running:
     display.flip()
     c.tick(144)
 quit()
+
