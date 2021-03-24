@@ -37,6 +37,7 @@ tool_6 = image.load("images/load.png").convert_alpha(screen)
 tool_7 = image.load("images/undo.png").convert_alpha(screen)
 tool_8 = image.load("images/redo.png").convert_alpha(screen)
 tool_9 = image.load("images/delete.png").convert_alpha(screen)
+
 tool_10 = image.load("images/dropper.png").convert_alpha(screen)
 tool_11 = image.load("images/text.png").convert_alpha(screen)
 tool_12 = image.load("images/polygon.png").convert_alpha(screen)
@@ -45,9 +46,19 @@ tool_14 = image.load("images/circle.png").convert_alpha(screen)
 tool_15 = image.load("images/rectangle_f.png").convert_alpha(screen)
 tool_16 = image.load("images/circle_f.png").convert_alpha(screen)
 
+tool_17 = image.load("images/apple.png").convert_alpha(screen)
+tool_18 = image.load("images/bell_bag.png").convert_alpha(screen)
+tool_19 = image.load("images/symbol.png").convert_alpha(screen)
+tool_20 = image.load("images/fossil.png").convert_alpha(screen)
+tool_21 = image.load("images/blathers.png").convert_alpha(screen)
+tool_22 = image.load("images/isabelle.png").convert_alpha(screen)
+tool_23 = image.load("images/kk_slider.png").convert_alpha(screen)
+
 pause_button = image.load("images/pause.png").convert_alpha(screen)
 play_button = image.load("images/play.png").convert_alpha(screen)
 skip_button = image.load("images/skip.png").convert_alpha(screen)
+
+tool_24 = image.load("images/slide.png")
 
 main_font = font.Font("Fink Heavy.ttf", 32)  # Loading the Animal Crossing Font
 
@@ -83,6 +94,7 @@ Tool_6 = Rect(115, 135, 85, 85)
 Tool_7 = Rect(115, 220, 85, 85)
 Tool_8 = Rect(115, 305, 85, 85)
 Tool_9 = Rect(115, 390, 85, 85)
+
 Tool_10 = Rect(400, 685, 85, 85)
 Tool_11 = Rect(485, 685, 85, 85)
 Tool_12 = Rect(570, 685, 85, 85)
@@ -90,6 +102,16 @@ Tool_13 = Rect(655, 685, 85, 85)
 Tool_14 = Rect(740, 685, 85, 85)
 Tool_15 = Rect(825, 685, 85, 85)
 Tool_16 = Rect(910, 685, 85, 85)
+
+Tool_17 = Rect(400, 685, 85, 85)
+Tool_18 = Rect(485, 685, 85, 85)
+Tool_19 = Rect(570, 685, 85, 85)
+Tool_20 = Rect(655, 685, 85, 85)
+Tool_21 = Rect(740, 685, 85, 85)
+Tool_22 = Rect(825, 685, 85, 85)
+Tool_23 = Rect(910, 685, 85, 85)
+
+Tool_24 = Rect(1010, 685, 85, 85)
 
 size_display = Rect(260, 740, 50, 50)
 add_rect = Rect(330, 685, 30, 30)
@@ -112,6 +134,8 @@ SONG_END = USEREVENT + 1
 mixer.music.set_endevent(SONG_END)
 mixer.music.load(songs[0])
 mixer.music.play()
+
+slide = 0
 
 while running:
     screen.blit(back, (0, 0))  # Refreshing the screen
@@ -197,6 +221,13 @@ while running:
                 elif tool == 14 and canvas.collidepoint(mx, my):
                     oldX, oldY = mx, my
 
+                elif Tool_24.collidepoint(mx, my):
+                    if slide == 0:
+                        slide = 1
+                    elif slide == 1:
+                        slide = 0
+                    tool = -1
+
                 if pause_play_rect.collidepoint(mx, my):
                     if mixer.music.get_busy():
                         mixer.music.pause()
@@ -221,6 +252,7 @@ while running:
 
                 elif tool == 13:
                     draw.rect(screen, colour, draw_rect, size)
+
                     if (mx - oldX) > 0 and (my - oldY) > 0 or (my - oldY) < 0 < (mx - oldX):  # 4th Quadrant or 1st
                         if size % 2 == 1:
                             draw.line(screen, colour, (mx + size // 2 - 1, oldY), (oldX - size // 2, oldY), size)
@@ -260,6 +292,9 @@ while running:
                     elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
                         draw.ellipse(screen, colour, (mx, oldY, oldX - mx, my - oldY), 0)
 
+                elif 17 <= tool <= 23:
+                    screen.blit(current_stamp, stamp_size)
+
                 capture = screen.subsurface(canvas).copy()
 
         if evt.type == KEYDOWN:
@@ -286,15 +321,24 @@ while running:
         draw.rect(screen, BLACK, (115, 50 + 85 * i, 85, 85), 2)
     for i in range(7):
         draw.rect(screen, BLACK, (400 + 85 * i, 685, 85, 85), 2)
+    draw.rect(screen, BLACK, Tool_24, 2)
 
     for i in range(5):
         draw.rect(screen, RED, (11, 51 + 85 * i, 83, 83))
         screen.blit(eval("tool_" + str(i)), (10, 50 + 85 * i))
         draw.rect(screen, RED, (116, 51 + 85 * i, 83, 83))
         screen.blit(eval("tool_" + str(i + 5)), (115, 50 + 85 * i))
+
     for i in range(7):
         draw.rect(screen, RED, (401 + 85 * i, 686, 83, 83))
-        screen.blit(eval("tool_" + str(i + 10)), (400 + 85 * i, 685))
+        if slide == 0:
+            screen.blit(eval("tool_" + str(i + 10)), (400 + 85 * i, 685))
+        elif slide == 1:
+            resized_stamp = transform.scale(eval("tool_" + str(i + 17)), (85, 85))
+            screen.blit(resized_stamp, (400 + 85 * i, 685))
+
+    draw.rect(screen, RED, (Tool_24[0] + 1, Tool_24[1] + 1, 83, 83))
+    screen.blit(tool_24, Tool_24)
 
     draw.rect(screen, WHITE, sub_rect)
     draw.rect(screen, WHITE, add_rect)
@@ -403,35 +447,71 @@ while running:
                 draw.ellipse(screen, colour, (mx, my, oldX - mx, oldY - my), 0)
             elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
                 draw.ellipse(screen, colour, (mx, oldY, oldX - mx, my - oldY), 0)
+
+        elif 17 <= tool <= 23:
+            screen.blit(capture, canvas)
+            current_stamp = eval("tool_" + str(tool))
+            stamp_size = Rect(oldX, oldY, mx-oldX, my-oldY)
+            stamp_size.normalize()
+            current_stamp = transform.scale(current_stamp, (stamp_size[2], stamp_size[3]))
+            if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
+                screen.blit(current_stamp, stamp_size)
+            elif (my - oldY) < 0 < (mx - oldX):  # 1st Quadrant
+                current_stamp = transform.flip(current_stamp, False, True)
+            elif (mx - oldX) < 0 and (my - oldY) < 0:  # 2nd Quadrant
+                current_stamp = transform.flip(current_stamp, True, True)
+            elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
+                current_stamp = transform.flip(current_stamp, True, False)
+            screen.blit(current_stamp, stamp_size)
+
         screen.set_clip(None)
 
-    for i in range(17):
+    for i in range(25):
+        if slide == 0 and  i > 16:
+            continue
         if eval("Tool_" + str(i)).collidepoint(mx, my):
             draw.rect(screen, L_BLUE, eval("Tool_" + str(i)))
             if i < 5:
                 screen.blit(eval("tool_" + str(i)), (10, 50 + 85 * i))
             elif i < 10:
                 screen.blit(eval("tool_" + str(i)), (115, 50 + 85 * (i - 5)))
-            elif i < 17:
+            elif i < 17 and slide == 0:
                 screen.blit(eval("tool_" + str(i)), (400 + 85 * (i - 10), 685))
+            elif i < 24 and slide == 1:
+                resized_stamp = transform.scale(eval("tool_" + str(i)), (85, 85))
+                screen.blit(resized_stamp, eval("Tool_" + str(i)))
+
             if mb[0] == 1:
                 tool = i
+                if tool >= 17 and slide == 0:
+                    tool -= 7
                 points = []
 
-    for i in range(17):
+    if Tool_24.collidepoint(mx, my):
+        draw.rect(screen, L_BLUE, Tool_24)
+        screen.blit(tool_24, Tool_24)
+        if mb[0] == 1:
+            tool = 24
+            points = []
+
+    for i in range(24):
         if tool == i:
             draw.rect(screen, L_GREEN, eval("Tool_" + str(i)))
             if tool < 5:
                 screen.blit(eval("tool_" + str(i)), (10, 50 + 85 * i))
             elif i < 10:
                 screen.blit(eval("tool_" + str(i)), (115, 50 + 85 * (i - 5)))
-            elif i < 17:
+            elif i < 17 and slide == 0:
                 screen.blit(eval("tool_" + str(i)), (400 + 85 * (i - 10), 685))
+            elif i < 24 and slide == 1:
+                resized_stamp = transform.scale(eval("tool_" + str(i)), (85, 85))
+                screen.blit(resized_stamp, (400 + 85 * (i - 17), 685))
 
     if canvas.collidepoint(mx, my):
         coordinates = main_font.render("(%d, %d)" % (mx - 300, my - 100), True, BLACK)
     else:
         coordinates = main_font.render("(-1, -1)", True, BLACK)
+
     screen.blit(coordinates, (1100, 0))
 
     track = songs[0]
@@ -484,4 +564,3 @@ while running:
     display.flip()
     c.tick(144)
 quit()
-
