@@ -467,6 +467,8 @@ while running:
         screen.set_clip(None)
 
     for i in range(25):
+        if slide == 0 and  i > 16:
+            continue
         if eval("Tool_" + str(i)).collidepoint(mx, my):
             draw.rect(screen, L_BLUE, eval("Tool_" + str(i)))
             if i < 5:
@@ -475,12 +477,9 @@ while running:
                 screen.blit(eval("tool_" + str(i)), (115, 50 + 85 * (i - 5)))
             elif i < 17 and slide == 0:
                 screen.blit(eval("tool_" + str(i)), (400 + 85 * (i - 10), 685))
-                # why no draw???
             elif i < 24 and slide == 1:
                 resized_stamp = transform.scale(eval("tool_" + str(i)), (85, 85))
                 screen.blit(resized_stamp, eval("Tool_" + str(i)))
-            elif i == 24:
-                screen.blit(eval("tool_" + str(i)), eval("Tool_" + str(i)))
 
             if mb[0] == 1:
                 tool = i
@@ -488,7 +487,14 @@ while running:
                     tool -= 7
                 points = []
 
-    for i in range(25):
+    if Tool_24.collidepoint(mx, my):
+        draw.rect(screen, L_BLUE, Tool_24)
+        screen.blit(tool_24, Tool_24)
+        if mb[0] == 1:
+            tool = 24
+            points = []
+
+    for i in range(24):
         if tool == i:
             draw.rect(screen, L_GREEN, eval("Tool_" + str(i)))
             if tool < 5:
@@ -500,8 +506,6 @@ while running:
             elif i < 24 and slide == 1:
                 resized_stamp = transform.scale(eval("tool_" + str(i)), (85, 85))
                 screen.blit(resized_stamp, (400 + 85 * (i - 17), 685))
-            elif i == 24:
-                screen.blit(eval("tool_" + str(i)), Tool_24)
 
     if canvas.collidepoint(mx, my):
         coordinates = main_font.render("(%d, %d)" % (mx - 300, my - 100), True, BLACK)
