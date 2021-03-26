@@ -122,10 +122,12 @@ skip_rect = Rect(740, 5, 40, 40)
 
 user_input = ""
 
-undo = [capture]
-redo = []
+undo = [screen.subsurface(canvas).copy()]
+pointer = 0
 
 points = []
+
+draw_rect = Rect(0, 0, 0, 0)
 
 songs = ["2 AM Snow.mp3", "ACNH Main Theme.mp3", "ACNH Town Hall.mp3", "ACNL Main Theme.mp3",
          "ACNL Town Hall.mp3"]
@@ -145,11 +147,12 @@ while running:
 
     mx, my = mouse.get_pos()
     mb = mouse.get_pressed(3)
-
     for evt in event.get():  # Main event loop
         if evt.type == QUIT:
             running = False
         if evt.type == MOUSEBUTTONDOWN:
+            print(undo, pointer)
+
             oldX, oldY = evt.pos
 
             if evt.button == 4 and size < 100:  # Mousewheel to add/decrease size
@@ -157,6 +160,7 @@ while running:
             if evt.button == 5 and size > 1:
                 size -= 1
             if evt.button == 1:
+
                 if add_rect.collidepoint(mx, my) and size < 100:  # Clicking on the buttons to add/decrease size
                     size += 1
                 elif sub_rect.collidepoint(mx, my) and size > 1:
@@ -191,24 +195,37 @@ while running:
                     tool = -1
 
                 elif Tool_7.collidepoint(mx, my):
-                    if len(undo) > 0:
-                        del undo[-1]
+                    if pointer < 0:
+                        pointer = 0
+                        print("Error 3", pointer)
+                    elif pointer > len(undo):
+                        pointer = len(undo)
                     try:
-                        screen.blit(undo[-1], canvas)
+                        if pointer >= 1:
+                            pointer -= 1
+                        screen.blit(undo[pointer], canvas)
+                        capture = screen.subsurface(canvas).copy()
                     except IndexError:
-                        screen.subsurface(canvas).copy()
+                        print("Error")
+                        pointer += 1
 
                 elif Tool_8.collidepoint(mx, my):
-                    if len(redo) > 0:
-                        undo.append(redo[-1])
-                        del redo[-1]
+                    if pointer < 0:
+                        pointer = 0
+                        print("Error 3", pointer)
+                    elif pointer > len(undo):
+                        pointer = len(undo)
+
                     try:
-                        screen.blit(redo[-1], canvas)
+                        pointer += 1
+                        screen.blit(undo[pointer], canvas)
+                        capture = screen.subsurface(canvas).copy()
                     except IndexError:
-                        screen.subsurface(canvas).copy()
-                        # out of order or something
+                        print("Error")
+                        pointer -= 1
 
                 elif Tool_9.collidepoint(mx, my):
+                    pointer += 1
                     draw.rect(screen, WHITE, canvas)
                     screen.blit(frame, (200, 20))
                     tool = -1
@@ -242,9 +259,10 @@ while running:
                     mixer.music.play()
 
         if evt.type == MOUSEBUTTONUP:
+            print(undo, pointer)
             if evt.button == 1:
-                if tool == 0:
-                    undo.append(screen.subsurface(canvas).copy())
+
+
                 screen.blit(capture, canvas)
 
                 if tool == 1:
@@ -294,6 +312,11 @@ while running:
 
                 elif 17 <= tool <= 23:
                     screen.blit(current_stamp, stamp_size)
+
+                if tool not in range(5, 9) and canvas.collidepoint(mx, my):
+                    capture = screen.subsurface(canvas).copy()
+                    undo = undo[:pointer + 1] + [screen.subsurface(canvas).copy()]
+                    pointer += 1
 
                 capture = screen.subsurface(canvas).copy()
 
@@ -451,7 +474,7 @@ while running:
         elif 17 <= tool <= 23:
             screen.blit(capture, canvas)
             current_stamp = eval("tool_" + str(tool))
-            stamp_size = Rect(oldX, oldY, mx-oldX, my-oldY)
+            stamp_size = Rect(oldX, oldY, mx - oldX, my - oldY)
             stamp_size.normalize()
             current_stamp = transform.scale(current_stamp, (stamp_size[2], stamp_size[3]))
             if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
@@ -467,7 +490,7 @@ while running:
         screen.set_clip(None)
 
     for i in range(25):
-        if slide == 0 and  i > 16:
+        if slide == 0 and i > 16:
             continue
         if eval("Tool_" + str(i)).collidepoint(mx, my):
             draw.rect(screen, L_BLUE, eval("Tool_" + str(i)))
