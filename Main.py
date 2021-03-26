@@ -264,6 +264,8 @@ while running:
                     draw.line(screen, colour, (oldX, oldY), (mx, my), size)
 
                 elif tool == 13:
+                    draw_rect = Rect(oldX, oldY, mx - oldX, my - oldY)
+                    draw_rect.normalize()
                     draw.rect(screen, colour, draw_rect, size)
                     if (mx - oldX) > 0 and (my - oldY) > 0 or (my - oldY) < 0 < (mx - oldX):  # 4th Quadrant or 1st
                         if size % 2 == 1:
@@ -280,7 +282,7 @@ while running:
                         else:
                             draw.line(screen, colour, (mx - size // 2 + 1, oldY), (oldX + size // 2 - 1, oldY), size)
                             draw.line(screen, colour, (mx - size // 2 + 1, my), (oldX + size // 2 - 1, my), size)
-
+                            
                 elif tool == 14:
                     if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
                         draw.ellipse(screen, colour, (oldX, oldY, mx - oldX, my - oldY), size)
@@ -525,7 +527,7 @@ while running:
                 screen.blit(resized_stamp, (400 + 85 * (i - 17), 685))
 
     if canvas.collidepoint(mx, my):
-        coordinates = main_font.render("(%d, %d)" % (mx - 300, my - 100), True, BLACK)
+        coordinates = main_font.render("(%d, %d)" % (mx - canvas[0], my - canvas[1]), True, BLACK)
     else:
         coordinates = main_font.render("(-1, -1)", True, BLACK)
 
