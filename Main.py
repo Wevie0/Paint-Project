@@ -151,8 +151,6 @@ while running:
         if evt.type == QUIT:
             running = False
         if evt.type == MOUSEBUTTONDOWN:
-            print(undo, pointer)
-
             oldX, oldY = evt.pos
 
             if evt.button == 4 and size < 100:  # Mousewheel to add/decrease size
@@ -235,8 +233,8 @@ while running:
                     if len(points) >= 3:
                         draw.polygon(screen, colour, points, 0)
 
-                elif tool == 14 and canvas.collidepoint(mx, my):
-                    oldX, oldY = mx, my
+                # elif tool == 14 and canvas.collidepoint(mx, my):
+                #     oldX, oldY = mx, my
 
                 elif Tool_24.collidepoint(mx, my):
                     if slide == 0:
@@ -259,10 +257,7 @@ while running:
                     mixer.music.play()
 
         if evt.type == MOUSEBUTTONUP:
-            print(undo, pointer)
             if evt.button == 1:
-
-
                 screen.blit(capture, canvas)
 
                 if tool == 1:
@@ -270,7 +265,6 @@ while running:
 
                 elif tool == 13:
                     draw.rect(screen, colour, draw_rect, size)
-
                     if (mx - oldX) > 0 and (my - oldY) > 0 or (my - oldY) < 0 < (mx - oldX):  # 4th Quadrant or 1st
                         if size % 2 == 1:
                             draw.line(screen, colour, (mx + size // 2 - 1, oldY), (oldX - size // 2, oldY), size)
