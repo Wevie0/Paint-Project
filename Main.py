@@ -258,7 +258,10 @@ while running:
                     draw.line(screen, colour, (oldX, oldY), (mx, my), size)  # Draws a line from old pos to current pos
 
                 elif tool == 6:  # Load image is selected
-                    screen.blit(import_stamp, import_size)  # Blits the imported image to the screen
+                    try:
+                        screen.blit(import_stamp, import_size)  # Blits the imported image to the screen
+                    except TypeError:
+                        pass
 
                 elif tool == 13:  # Unfilled Rect is selected
                     draw_rect = Rect(oldX, oldY, mx - oldX, my - oldY)
@@ -439,19 +442,22 @@ while running:
             # uses the smallest of 5 or the size (1, 2, 3, 4)
 
         elif tool == 6:  # Load image
-            screen.blit(capture, canvas)
-            import_size = Rect(oldX, oldY, mx - oldX, my - oldY)  # Creates a normalized rectangle for the image
-            import_size.normalize()
-            import_stamp = transform.scale(imported, (import_size[2], import_size[3]))  # Scales it up or down
-            if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
-                screen.blit(import_stamp, import_size)  # Flips the image horizontally or vertically if needed
-            elif (my - oldY) < 0 < (mx - oldX):  # 1st Quadrant
-                import_stamp = transform.flip(import_stamp, False, True)
-            elif (mx - oldX) < 0 and (my - oldY) < 0:  # 2nd Quadrant
-                import_stamp = transform.flip(import_stamp, True, True)
-            elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
-                import_stamp = transform.flip(import_stamp, True, False)
-            screen.blit(import_stamp, import_size)
+            try:
+                screen.blit(capture, canvas)
+                import_size = Rect(oldX, oldY, mx - oldX, my - oldY)  # Creates a normalized rectangle for the image
+                import_size.normalize()
+                import_stamp = transform.scale(imported, (import_size[2], import_size[3]))  # Scales it up or down
+                if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
+                    screen.blit(import_stamp, import_size)  # Flips the image horizontally or vertically if needed
+                elif (my - oldY) < 0 < (mx - oldX):  # 1st Quadrant
+                    import_stamp = transform.flip(import_stamp, False, True)
+                elif (mx - oldX) < 0 and (my - oldY) < 0:  # 2nd Quadrant
+                    import_stamp = transform.flip(import_stamp, True, True)
+                elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
+                    import_stamp = transform.flip(import_stamp, True, False)
+                screen.blit(import_stamp, import_size)
+            except:
+                pass
 
         elif tool == 10 and canvas.collidepoint(mx, my):  # Dropper tool takes the current pixel as the colour
             colour = screen.get_at((mx, my))
