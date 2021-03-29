@@ -319,7 +319,8 @@ while running:
                     # For each stamp tool, the current stamp selected is blitted at the specified location
                     screen.blit(current_stamp, stamp_size)
 
-                if tool not in [5, 7, 8] and canvas.collidepoint(mx, my):  # If tool is not save, undo or redo
+                if tool not in [5, 7, 8] and canvas.collidepoint(mx, my) or tool == 9:
+                    # If tool is not save, undo or redo
                     capture = screen.subsurface(canvas).copy()  # Captures the screen
                     # Deletes anything after the pointer, because if you undo and then draw something, the queue
                     # does not keep the different timeline as there is a split, and then appends the current canvas
@@ -539,7 +540,7 @@ while running:
 
             if mb[0] == 1:  # If clicked
                 tool = i  # The tool changes
-                if tool >= 17 and slide == 0: # Due to the fact that the stamps and shapes are in the same location
+                if tool >= 17 and slide == 0:  # Due to the fact that the stamps and shapes are in the same location
                     # The stamp tool overrides the shapes, so if the shape slide is selected, the tool is shifted 7
                     tool -= 7
                 vertices = []  # Clears vertices and text
