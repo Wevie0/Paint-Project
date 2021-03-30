@@ -37,8 +37,6 @@ undo = [screen.subsurface(canvas).copy()]  # The undo queue, i.e. all the previo
 pointer = 0  # The 'pointer', indicating what index of the undo list is wanted
 
 draw_rect = Rect(0, 0, 0, 0)  # Rect objects for the rectangles and stamps
-import_size = Rect(0, 0, 0, 0)
-import_stamp = canvas
 
 slide = 0
 c = time.Clock()
@@ -139,6 +137,7 @@ mixer.music.load(songs[0])  # Loads and plays song #1
 mixer.music.play()
 # Note: needs pygame v2.0.1 to work properly, otherwise can not be unpaused
 
+
 while running:
     screen.blit(back, (0, 0))  # Refreshing the screen
     draw.rect(screen, WHITE, canvas, 0)  # Drawing the canvas and the user drawings
@@ -151,26 +150,18 @@ while running:
     for evt in event.get():  # Main event loop
         if evt.type == QUIT:
             running = False
+
         if evt.type == MOUSEBUTTONDOWN:
             oldX, oldY = evt.pos
-
             if evt.button == 4 and size < 100:  # Mousewheel to add/decrease size
                 size += 1
             if evt.button == 5 and size > 1:
                 size -= 1
             if evt.button == 1:
-
                 if add_rect.collidepoint(mx, my) and size < 100:  # Clicking on the buttons to add/decrease size
                     size += 1
                 elif sub_rect.collidepoint(mx, my) and size > 1:
                     size -= 1
-
-                if tool == 11 and canvas.collidepoint(mx, my):  # User inputted text
-                    user_font = font.Font("Fink Heavy.ttf", size)  # Loading the Animal Crossing Font
-                    display_input = user_font.render(user_input, True, colour)  # Rendering the input in the colour
-                    input_box = Rect(mx, my, width - mx,
-                                     height - my)  # A boundary box between the width and height and mouse position
-                    screen.blit(display_input, input_box)
 
                 if Tool_5.collidepoint(mx, my):  # Saving is selected
                     tool = -1  # Tool "resets" to -1
@@ -185,10 +176,11 @@ while running:
 
                 elif Tool_6.collidepoint(mx, my):  # Load custom image
                     try:
+                        screen.blit(capture, canvas)
                         file_name = filedialog.askopenfilename()
-                        imported = image.load(file_name)  # Imported is the user selected file
+                        imported = image.load(file_name).convert_alpha(screen)  # Imported is the user selected file
+                        screen.blit(imported, (canvas[0], canvas[1]))
                     except error:
-                        tool = -1
                         pass
 
                 elif Tool_7.collidepoint(mx, my):  # Undo is selected
@@ -223,6 +215,14 @@ while running:
                     screen.blit(frame, (200, 20))
                     tool = -1
 
+                elif tool == 11 and canvas.collidepoint(mx, my):  # User inputted text
+                    user_font = font.Font("Fink Heavy.ttf", size)  # Loading the Animal Crossing Font
+                    display_input = user_font.render(user_input, True, colour)  # Rendering the input in the colour
+                    input_box = Rect(mx, my, width - mx,
+                                     height - my)  # A boundary box between the width and height and mouse position
+                    screen.blit(display_input, input_box)
+                    capture = screen.subsurface(canvas).copy()
+
                 elif tool == 12 and canvas.collidepoint(mx, my):  # Filled polygon is selected
                     vertices.append((mx, my))  # A new vertex is created at (mx, my)
                     if len(vertices) >= 3:  # A polygon has to have 3 or more vertices, then draws the vertices
@@ -256,12 +256,6 @@ while running:
 
                 if tool == 1:  # Line is selected
                     draw.line(screen, colour, (oldX, oldY), (mx, my), size)  # Draws a line from old pos to current pos
-
-                elif tool == 6:  # Load image is selected
-                    try:
-                        screen.blit(import_stamp, import_size)  # Blits the imported image to the screen
-                    except TypeError:
-                        pass
 
                 elif tool == 13:  # Unfilled Rect is selected
                     draw_rect = Rect(oldX, oldY, mx - oldX, my - oldY)
@@ -352,31 +346,6 @@ while running:
             mixer.music.load(songs[0])
             mixer.music.play()
 
-    for i in range(5):  # Draws black outline for the tool boxes
-        draw.rect(screen, BLACK, (10, 50 + 85 * i, 85, 85), 2)
-        draw.rect(screen, BLACK, (115, 50 + 85 * i, 85, 85), 2)
-    for i in range(7):
-        draw.rect(screen, BLACK, (400 + 85 * i, 685, 85, 85), 2)
-    draw.rect(screen, BLACK, Tool_24, 2)
-
-    for i in range(5):  # Draws the pink default rectangles, then the image of the tool
-        draw.rect(screen, PINK, (11, 51 + 85 * i, 83, 83))
-        screen.blit(eval("tool_" + str(i)), (10, 50 + 85 * i))
-        draw.rect(screen, PINK, (116, 51 + 85 * i, 83, 83))
-        screen.blit(eval("tool_" + str(i + 5)), (115, 50 + 85 * i))
-
-    for i in range(7):
-        draw.rect(screen, PINK, (401 + 85 * i, 686, 83, 83))
-        if slide == 0:  # If the slide is set to display the shapes, then draws the shapes (indices 10 to 16)
-            screen.blit(eval("tool_" + str(i + 10)), (400 + 85 * i, 685))
-        elif slide == 1:  # If the slide is set to display the stamps, then draws the stamps (indices 17 to 23)
-            # Transforms the stamp image to an 85 by 85 image, and displays it at the proper location
-            # eval("tool_" + str(i+17)) is a way to loop through each image and display it, without 7 lines for each
-            screen.blit(transform.scale(eval("tool_" + str(i + 17)), (85, 85)), (400 + 85 * i, 685))
-
-    draw.rect(screen, PINK, (Tool_24[0] + 1, Tool_24[1] + 1, 83, 83))  # Draws the change index button
-    screen.blit(tool_24, Tool_24)
-
     draw.rect(screen, WHITE, sub_rect)  # Draws the white add and subtract size buttons
     draw.rect(screen, WHITE, add_rect)
 
@@ -401,13 +370,19 @@ while running:
     screen.blit(add_size, (339, 686, 30, 30))
     screen.blit(sub_size, (340, 725, 30, 30))
 
+    if tool == 11:
+        user_font = font.Font("Fink Heavy.ttf", size)  # Loading the Animal Crossing Font
+        display_input = user_font.render(user_input, True, colour)  # Rendering the input in the colour
+        input_box = Rect(mx, my, width - mx,
+                         height - my)  # A boundary box between the width and height and mouse position
+        screen.blit(display_input, input_box)
+
     if mb[0] == 1 and my >= 485:  # If the mouse is pressed over the colour selection tools
         if ((mx - 110) ** 2 + (my - 585) ** 2) ** 0.5 <= 90:  # Colour Wheel,
             # uses pythagorean distance formula for circle
             colour = screen.get_at((mx, my))  # Updates the current colour with the pixel behind the mouse
         elif 215 >= mx >= 15 and 765 >= my >= 685:  # Black and white panel
             colour = screen.get_at((mx, my))
-
     if mb[0] == 1:
         screen.set_clip(canvas)  # Allows only the canvas to be affected
         if tool == 0 or tool == 2:  # Pencil or eraser
@@ -440,24 +415,6 @@ while running:
         elif tool == 4:
             draw.line(screen, colour, (mx, my), (oldX, oldY), min(5, size))  # Draws line for the pencil
             # uses the smallest of 5 or the size (1, 2, 3, 4)
-
-        elif tool == 6:  # Load image
-            try:
-                screen.blit(capture, canvas)
-                import_size = Rect(oldX, oldY, mx - oldX, my - oldY)  # Creates a normalized rectangle for the image
-                import_size.normalize()
-                import_stamp = transform.scale(imported, (import_size[2], import_size[3]))  # Scales it up or down
-                if (mx - oldX) > 0 and (my - oldY) > 0:  # 4th Quadrant
-                    screen.blit(import_stamp, import_size)  # Flips the image horizontally or vertically if needed
-                elif (my - oldY) < 0 < (mx - oldX):  # 1st Quadrant
-                    import_stamp = transform.flip(import_stamp, False, True)
-                elif (mx - oldX) < 0 and (my - oldY) < 0:  # 2nd Quadrant
-                    import_stamp = transform.flip(import_stamp, True, True)
-                elif (mx - oldX) < 0 < (my - oldY):  # 3rd Quadrant
-                    import_stamp = transform.flip(import_stamp, True, False)
-                screen.blit(import_stamp, import_size)
-            except:
-                pass
 
         elif tool == 10 and canvas.collidepoint(mx, my):  # Dropper tool takes the current pixel as the colour
             colour = screen.get_at((mx, my))
@@ -530,7 +487,32 @@ while running:
 
         screen.set_clip(None)
 
-    for i in range(25):  # Loops through the tools
+    for i in range(5):  # Draws black outline for the tool boxes
+        draw.rect(screen, BLACK, (10, 50 + 85 * i, 85, 85), 2)
+        draw.rect(screen, BLACK, (115, 50 + 85 * i, 85, 85), 2)
+    for i in range(7):
+        draw.rect(screen, BLACK, (400 + 85 * i, 685, 85, 85), 2)
+    draw.rect(screen, BLACK, Tool_24, 2)
+
+    for i in range(5):  # Draws the pink default rectangles, then the image of the tool
+        draw.rect(screen, PINK, (11, 51 + 85 * i, 83, 83))
+        screen.blit(eval("tool_" + str(i)), (10, 50 + 85 * i))
+        draw.rect(screen, PINK, (116, 51 + 85 * i, 83, 83))
+        screen.blit(eval("tool_" + str(i + 5)), (115, 50 + 85 * i))
+
+    for i in range(7):
+        draw.rect(screen, PINK, (401 + 85 * i, 686, 83, 83))
+        if slide == 0:  # If the slide is set to display the shapes, then draws the shapes (indices 10 to 16)
+            screen.blit(eval("tool_" + str(i + 10)), (400 + 85 * i, 685))
+        elif slide == 1:  # If the slide is set to display the stamps, then draws the stamps (indices 17 to 23)
+            # Transforms the stamp image to an 85 by 85 image, and displays it at the proper location
+            # eval("tool_" + str(i+17)) is a way to loop through each image and display it, without 7 lines for each
+            screen.blit(transform.scale(eval("tool_" + str(i + 17)), (85, 85)), (400 + 85 * i, 685))
+
+    draw.rect(screen, PINK, (Tool_24[0] + 1, Tool_24[1] + 1, 83, 83))  # Draws the change index button
+    screen.blit(tool_24, Tool_24)
+
+    for i in range(25):  # Loops through the tools and does the light blue highlighting for hover
         if slide == 0 and i > 16:  # With the shapes selected, tools 17 to 23 are not needed
             break
         if eval("Tool_" + str(i)).collidepoint(mx, my):  # If there is collision between the mouse and each tool
@@ -559,7 +541,7 @@ while running:
             vertices = []
             user_input = ""
 
-    for i in range(24):
+    for i in range(24):  # Green highlighting if a tool is selected
         if tool == i:
             draw.rect(screen, L_GREEN, eval("Tool_" + str(i)))  # If the tool is currently selected
             if tool < 5:  # Draws the image back on the screen depending on the tool
@@ -614,8 +596,8 @@ while running:
         # the stamps, shapes, and line tools
         oldX, oldY = mx, my
 
-    if tool != 1 and tool != 6 and tool < 13:  # Captures the screen, but does not for the tools that adjust based
-        # on the current mx and my before letting go
+    if tool != 1 and tool != 11 and tool < 13:
+        # Captures the screen, but does not for the tools that adjust based on the current mx and my before letting go
         capture = screen.subsurface(canvas).copy()
 
     if (0 <= tool < 5 or 10 <= tool <= 16) and canvas.collidepoint(mx, my):  # Displays custom cursors
